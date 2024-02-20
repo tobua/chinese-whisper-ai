@@ -27,7 +27,6 @@ async function textToImage(text: string) {
       prompt: text,
       size: '1024x1024',
       quality: 'standard',
-      n: 1,
     }),
   )
 

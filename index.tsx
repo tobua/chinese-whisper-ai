@@ -2,22 +2,18 @@ import { scale } from 'optica'
 import { type CSSProperties, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { modeOrder } from './helper'
+import { randomMode } from './helper'
 import { Button } from './markup/Button'
 import { OpenAI } from './markup/Icon'
 import { Input } from './markup/Input'
 import { PreviousMode } from './markup/PreviousMode'
-import { Mode } from './types'
+import type { Mode } from './types'
 
 document.body.style.display = 'flex'
 document.body.style.justifyContent = 'center'
 document.body.style.margin = '0'
 document.body.style.padding = '5vmin'
 document.body.style.minHeight = 'calc(100vh - 10vmin)'
-
-export const apiUrl = (path: string) =>
-  `${process.env.NODE_ENV === 'production' ? '/api/' : 'http://localhost:3001/api/'}${path}`
-
-const randomMode = () => Object.values(Mode)[Math.floor(Math.random() * 3)]
 
 const appStyles: CSSProperties = {
   display: 'flex',
@@ -57,7 +53,7 @@ const footerStyles: CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   columnGap: scale(20),
-  fontSize: scale(28),
+  fontSize: scale(28, 10),
 }
 
 const App = () => {

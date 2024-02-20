@@ -1,7 +1,8 @@
 import { scale } from 'optica'
 import { type CSSProperties, type JSX, useEffect, useState } from 'react'
+import { fileToBase64 } from '../../helper'
 import { Button } from '../Button'
-import { Voice } from '../Icon'
+import { Close, Voice } from '../Icon'
 
 const wrapperStyles: CSSProperties = {
   display: 'flex',
@@ -51,14 +52,21 @@ const transcriptStyles: CSSProperties = {
   lineHeight: 1.4,
 }
 
-export function fileToBase64(file: Blob) {
-  return new Promise<string>((done) => {
-    const reader = new FileReader()
-    reader.onload = (event: ProgressEvent<FileReader>) => {
-      done(event.target?.result as string)
-    }
-    reader.readAsDataURL(file)
-  })
+const clearStyles: CSSProperties = {
+  position: 'absolute',
+  top: scale(10),
+  right: scale(10),
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+}
+
+const previewWrapper: CSSProperties = {
+  display: 'flex',
+  position: 'relative',
+  padding: scale(40),
+  borderRadius: scale(20),
+  background: 'lightgray',
 }
 
 export function VoiceInput({
@@ -80,6 +88,7 @@ export function VoiceInput({
   useEffect(() => {
     let mediaRecorder: MediaRecorder
     let audioChunks: Blob[] = []
+    // biome-ignore lint/correctness/noUndeclaredVariables: <explanation>
     let recognition: SpeechRecognition
 
     const startListening = async () => {
@@ -142,28 +151,33 @@ export function VoiceInput({
     }
   }, [listening, setData, setUrl])
 
-  console.log(url, data, data.startsWith('data:audio/wav') ? 'audio/wav' : 'audio/mp3')
   return (
     <div {...props} style={{ ...wrapperStyles, ...style }}>
-      {data && (
-        // biome-ignore lint/a11y/useMediaCaption: <explanation>
-        <audio controls={true}>
-          <source src={data} type={data.startsWith('data:audio/wav') ? 'audio/wav' : 'audio/mp3'} />
-        </audio>
+      {data ? (
+        <div style={previewWrapper}>
+          {/* biome-ignore lint/a11y/useMediaCaption: no captions available */}
+          <audio controls={true}>
+            <source src={data} type={data.startsWith('data:audio/wav') ? 'audio/wav' : 'audio/mp3'} />
+          </audio>
+          <button type="button" style={clearStyles} onClick={() => setData('')}>
+            <Close />
+          </button>
+        </div>
+      ) : (
+        <div style={recordStyles}>
+          <textarea
+            style={transcriptStyles}
+            value={transcript}
+            onChange={(e) => setTranscript(e.target.value)}
+            placeholder="Live transcript"
+            rows={2}
+          />
+          <button type="button" style={recordButtonStyles(listening)} onClick={() => setListening(!listening)}>
+            <Voice color={listening ? 'black' : 'white'} />
+            {listening ? 'Stop Recording' : 'Start Recording'}
+          </button>
+        </div>
       )}
-      <div style={recordStyles}>
-        <textarea
-          style={transcriptStyles}
-          value={transcript}
-          onChange={(e) => setTranscript(e.target.value)}
-          placeholder="Live transcript"
-          rows={2}
-        />
-        <button type="button" style={recordButtonStyles(listening)} onClick={() => setListening(!listening)}>
-          <Voice color={listening ? 'black' : 'white'} />
-          {listening ? 'Stop Recording' : 'Start Recording'}
-        </button>
-      </div>
       {url && (
         <Button
           as="a"

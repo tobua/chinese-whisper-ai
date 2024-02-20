@@ -1,8 +1,8 @@
 import { it } from 'avait'
 import { scale } from 'optica'
 import { type CSSProperties, type JSX, useCallback, useState } from 'react'
-import { apiUrl } from '..'
-import { modeOrder } from '../helper'
+import { apiUrl } from '../helper'
+import { fileToBase64, modeOrder } from '../helper'
 import { Mode } from '../types'
 import { Button } from './Button'
 import { Loader } from './Icon'
@@ -45,16 +45,6 @@ const errorStyles: CSSProperties = {
   borderRadius: scale(10),
 }
 
-export function fileToBase64(file: Blob) {
-  return new Promise<string>((done) => {
-    const reader = new FileReader()
-    reader.onload = (event: ProgressEvent<FileReader>) => {
-      done(event.target?.result as string)
-    }
-    reader.readAsDataURL(file)
-  })
-}
-
 export function Input({
   style,
   mode,
@@ -69,7 +59,7 @@ export function Input({
     async (output: Mode) => {
       setLoading(true)
       setError(false)
-      const { error, value } = await it(
+      const { error, value: response } = await it(
         fetch(apiUrl('transform'), {
           method: 'POST',
           headers: {
@@ -81,40 +71,37 @@ export function Input({
         }),
       )
 
-      setLoading(false)
-
-      if (error) {
+      if (error || !response.ok) {
+        setLoading(false)
         setError(true)
         return
       }
 
-      setMode(output)
-
       if (output === Mode.Text) {
-        const result = await value.text()
+        const result = await response.text()
         setData(result)
+        setLoading(false)
+        setMode(output)
         return
       }
 
       if (output === Mode.Image) {
         // Url to image in text response.
-        const image = await value.text()
+        const image = await response.text()
         setData(image)
+        setLoading(false)
+        setMode(output)
         return
       }
 
       if (output === Mode.Voice) {
-        const audioBlob = await value.blob()
-        // const audioBlob = await streamToBlob(value.body, 'audio/mp3')
-        // const audioBlob = new Blob(audioChunks, { type: 'audio/wav' })
+        const audioBlob = await response.blob()
         const base64Url = URL.createObjectURL(audioBlob)
         const base64Full = await fileToBase64(audioBlob)
         setData(base64Full)
         setUrl(base64Url)
-        // console.log('middle', body)
-        // setResult(voice)
-        // setData(voice)
-        // console.log('TODO voice output')
+        setLoading(false)
+        setMode(output)
         return
       }
 
@@ -135,7 +122,7 @@ export function Input({
       <Loader style={loaderPositionStyles(loading)} rotate={loading} />
       {input}
       <div style={actionWrapperStyles}>
-        <Button disabled={!data} onClick={() => submitData(modeOrder[mode].next)}>
+        <Button disabled={!data || loading} onClick={() => submitData(modeOrder[mode].next)}>
           Convert to {modeOrder[mode].next}
         </Button>
       </div>

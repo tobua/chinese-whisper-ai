@@ -8,6 +8,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { fileToBase64 } from '../../helper'
 import { Button } from '../Button'
 import { Close } from '../Icon'
 
@@ -63,16 +64,6 @@ const clearStyles: CSSProperties = {
   background: 'none',
   border: 'none',
   cursor: 'pointer',
-}
-
-function fileToBase64(file: File) {
-  return new Promise<string>((done) => {
-    const reader = new FileReader()
-    reader.onload = (event: ProgressEvent<FileReader>) => {
-      done(event.target?.result as string)
-    }
-    reader.readAsDataURL(file)
-  })
 }
 
 export function ImageInput({

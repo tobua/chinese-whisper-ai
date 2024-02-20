@@ -5,19 +5,19 @@
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "server": "bun --watch server.ts",
-    "format": "biome format **/*.{ts,tsx} --write",
-    "lint": "biome lint **/*.{ts,tsx}",
+    "format": "biome format . --write",
+    "lint": "biome lint .",
     "deploy": "vercel deploy"
   },
   "type": "module",
   "dependencies": {
     "@biomejs/biome": "^1.5.3",
     "@elysiajs/cors": "^0.8.0",
-    "@rsbuild/core": "^0.4.2",
-    "@rsbuild/plugin-react": "^0.4.2",
+    "@rsbuild/core": "0.4.2",
+    "@rsbuild/plugin-react": "0.4.2",
     "@types/bun": "^1.0.6",
     "@types/dom-speech-recognition": "^0.0.4",
-    "@types/react": "^18.2.56",
+    "@types/react": "^18.2.57",
     "@types/react-dom": "^18.2.19",
     "avait": "^1.0.0",
     "elysia": "^0.8.17",
@@ -25,7 +25,6 @@
     "optica": "^2.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "stream-to-blob": "^2.0.1",
     "typescript": "^5.3.3",
     "vercel": "^33.5.1"
   }
